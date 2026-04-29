@@ -1,0 +1,15 @@
+<script>
+    async function updateStatus() {
+        // This looks at your own Vercel project's API
+        const response = await fetch('/api/status');
+        const data = await response.json();
+        
+        const text = document.getElementById('status-text');
+        if (data.online) {
+            text.innerText = `ONLINE: ${data.players.online} Trainers Active`;
+        } else {
+            text.innerText = 'OFFLINE: Server is currently down.';
+        }
+    }
+    updateStatus();
+</script>
