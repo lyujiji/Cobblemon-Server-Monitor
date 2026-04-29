@@ -1,23 +1,45 @@
-<script>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cobblemon Status</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding-top: 50px; background-color: #121212; color: white; }
+        .card { background: #1e1e1e; padding: 20px; border-radius: 10px; display: inline-block; min-width: 300px; border: 1px solid #333; }
+        #status-text { font-weight: bold; font-size: 1.2em; }
+        .online { color: #4caf50; }
+        .offline { color: #f44336; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Cobblemon Server</h1>
+        <div id="status-container">
+            <p id="status-text">Checking Status...</p>
+        </div>
+    </div>
+
+    <script>
         async function updateStatus() {
+            const statusEl = document.getElementById('status-text');
             try {
-                // This line is the only bridge you need
+                // This calls your Vercel backend
                 const response = await fetch('/api/status');
                 const data = await response.json();
                 
-                const text = document.getElementById('status-text');
                 if (data.online) {
-                    text.innerText = `ONLINE: ${data.players.online} Trainers Active`;
-                    text.style.color = "green";
+                    statusEl.innerText = `ONLINE: ${data.players.online} Trainers Active`;
+                    statusEl.className = 'online';
                 } else {
-                    text.innerText = 'OFFLINE: Server is currently down.';
-                    text.style.color = "red";
+                    statusEl.innerText = 'OFFLINE: Server is currently down.';
+                    statusEl.className = 'offline';
                 }
             } catch (error) {
-                console.error("Error:", error);
-                document.getElementById('status-text').innerText = 'Error connecting...';
+                statusEl.innerText = 'Error: Cannot reach monitor backend.';
+                statusEl.className = 'offline';
             }
         }
         updateStatus();
+        setInterval(updateStatus, 30000); // Refresh every 30 seconds
     </script>
 </body>
+</html>
