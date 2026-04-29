@@ -11,17 +11,18 @@
                 const response = await fetch('/api/status');
                 const data = await response.json();
                 
-                // This line matches the ID "status-text" above
-                const text = document.getElementById('status-text');
+                const statusElement = document.getElementById('status-text');
                 
                 if (data.online) {
-                    text.innerText = `ONLINE: ${data.players.online} Trainers Active`;
-                    text.style.color = "green";
+                    // This shows the player count too!
+                    statusElement.innerText = `ONLINE: ${data.players.online} Trainers Active`;
+                    statusElement.style.color = "green";
                 } else {
-                    text.innerText = 'OFFLINE: Server is currently down.';
-                    text.style.color = "red";
+                    statusElement.innerText = 'OFFLINE: Server is currently down.';
+                    statusElement.style.color = "red";
                 }
             } catch (error) {
+                console.error("Fetch error:", error);
                 document.getElementById('status-text').innerText = 'Error connecting to API.';
             }
         }
