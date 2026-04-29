@@ -1,29 +1,21 @@
-<body>
-    <h1>Cobblemon Server</h1>
-    
-    <div id="status-container">
-        <span id="status-text">Checking...</span>
-    </div>
-
-    <script>
+<script>
         async function updateStatus() {
             try {
+                // This line is the only bridge you need
                 const response = await fetch('/api/status');
                 const data = await response.json();
                 
-                const statusElement = document.getElementById('status-text');
-                
+                const text = document.getElementById('status-text');
                 if (data.online) {
-                    // This shows the player count too!
-                    statusElement.innerText = `ONLINE: ${data.players.online} Trainers Active`;
-                    statusElement.style.color = "green";
+                    text.innerText = `ONLINE: ${data.players.online} Trainers Active`;
+                    text.style.color = "green";
                 } else {
-                    statusElement.innerText = 'OFFLINE: Server is currently down.';
-                    statusElement.style.color = "red";
+                    text.innerText = 'OFFLINE: Server is currently down.';
+                    text.style.color = "red";
                 }
             } catch (error) {
-                console.error("Fetch error:", error);
-                document.getElementById('status-text').innerText = 'Error connecting to API.';
+                console.error("Error:", error);
+                document.getElementById('status-text').innerText = 'Error connecting...';
             }
         }
         updateStatus();
