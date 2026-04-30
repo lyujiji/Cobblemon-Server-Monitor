@@ -1,12 +1,36 @@
-fetch('/api/status')
-    .then(response => response.json())
-    .then(data => {
-        const statusElement = document.getElementById('server-status');
-        if (data.online) {
-            statusElement.innerHTML = "Online";
-            statusElement.style.color = "green";
-        } else {
-            statusElement.innerHTML = "Offline";
-            statusElement.style.color = "red";
-        }
-    });
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minecraft Server Status</title>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #1e1e1e; padding: 2rem; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        #server-status { font-weight: bold; font-size: 1.5rem; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Server Status</h1>
+        <p id="server-status">Checking...</p>
+    </div>
+
+    <script>
+        fetch('/api/status')
+            .then(response => response.json())
+            .then(data => {
+                const statusElement = document.getElementById('server-status');
+                if (data.online) {
+                    statusElement.innerHTML = "Online";
+                    statusElement.style.color = "#4caf50"; // Green
+                } else {
+                    statusElement.innerHTML = "Offline";
+                    statusElement.style.color = "#f44336"; // Red
+                }
+            })
+            .catch(err => {
+                document.getElementById('server-status').innerHTML = "Error loading status";
+            });
+    </script>
+</body>
+</html>
