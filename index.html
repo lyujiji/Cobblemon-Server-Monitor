@@ -1,38 +1,212 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Cobblemon Status</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cobblemon Server Monitor</title>
     <style>
-        body { background: #121212; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { background: #1e1e1e; padding: 30px; border-radius: 15px; text-align: center; border: 1px solid #333; }
-        #status { font-size: 24px; font-weight: bold; margin-top: 10px; }
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --accent: #38bdf8;
+            --online: #22c55e;
+            --offline: #ef4444;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: var(--card);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 350px;
+        }
+
+        h1 { 
+            font-size: 1rem; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            opacity: 0.7; 
+            margin-bottom: 0.5rem; 
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 1rem 0;
+        }
+
+        .dot {
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            background-color: #334155;
+        }
+
+        .pulse {
+            animation: pulse-animation 2s infinite;
+        }
+
+        @keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0px rgba(34, 197, 94, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0px rgba(34, 197, 94, 0); }
+        }
+
+        .player-count {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .ip-box {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px dashed var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .ip-box:hover { 
+            transform: scale(1.02); 
+            background: rgba(0, 0, 0, 0.3); 
+        }
+
+        .ip-text { 
+            font-family: monospace; 
+            color: var(--accent); 
+            font-size: 1rem;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+        }
+
+        .btn {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: 1px solid var(--accent);
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        .copy-hint {
+            font-size: 0.65rem;
+            opacity: 0.5;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
-    <div class="box">
-        <div>SERVER STATUS</div>
-        <div id="status">Loading...</div>
+
+    <div class="container">
+        <h1>Server Status</h1>
+        
+        <div class="status-badge">
+            <span class="dot" id="status-dot"></span>
+            <span id="status-text">LOADING...</span>
+        </div>
+        
+        <div class="player-count" id="player-count">Fetching players...</div>
+
+        <div class="ip-box" onclick="copyIP()">
+            <div class="copy-hint">Click to copy IP</div>
+            <div class="ip-text" id="ip-val">him-bolt.gl.joinmc.link</div>
+        </div>
+
+        <div class="button-group">
+            <a href="https://www.curseforge.com/minecraft/modpacks/cobblemon" target="_blank" class="btn">
+                📦 Download Modpack
+            </a>
+            <a href="#" target="_blank" class="btn">
+                💬 ClumpyBros Discord
+            </a>
+        </div>
     </div>
 
     <script>
-        async function getStatus() {
+        async function updateStatus() {
             try {
                 const res = await fetch('/api/status');
                 const data = await res.json();
-                const el = document.getElementById('status');
                 
+                const text = document.getElementById('status-text');
+                const dot = document.getElementById('status-dot');
+                const players = document.getElementById('player-count');
+
                 if (data.online) {
-                    el.innerText = "ONLINE (" + data.players + "/" + data.max + ")";
-                    el.style.color = "#4caf50";
+                    text.innerText = "ONLINE";
+                    text.style.color = "var(--online)";
+                    dot.style.backgroundColor = "var(--online)";
+                    dot.classList.add('pulse');
+                    players.innerText = `${data.players} / ${data.max} Trainers Online`;
                 } else {
-                    el.innerText = "OFFLINE";
-                    el.style.color = "#f44336";
+                    text.innerText = "OFFLINE";
+                    text.style.color = "var(--offline)";
+                    dot.style.backgroundColor = "var(--offline)";
+                    dot.classList.remove('pulse');
+                    players.innerText = "The server is currently resting.";
                 }
             } catch (err) {
-                document.getElementById('status').innerText = "API ERROR";
+                document.getElementById('status-text').innerText = "ERROR";
+                document.getElementById('status-text').style.color = "var(--offline)";
             }
         }
-        getStatus();
+
+        function copyIP() {
+            const ip = document.getElementById('ip-val').innerText;
+            navigator.clipboard.writeText(ip);
+            
+            // Subtle feedback instead of a jarring alert
+            const hint = document.querySelector('.copy-hint');
+            const originalText = hint.innerText;
+            hint.innerText = "COPIED!";
+            hint.style.color = "var(--online)";
+            
+            setTimeout(() => {
+                hint.innerText = originalText;
+                hint.style.color = "";
+            }, 2000);
+        }
+
+        // Initial check
+        updateStatus();
+        
+        // Refresh every 30 seconds
+        setInterval(updateStatus, 30000);
     </script>
 </body>
 </html>
