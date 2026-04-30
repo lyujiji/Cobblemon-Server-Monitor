@@ -1,40 +1,18 @@
-import net from 'net';
-
 export default async function handler(req, res) {
-    const serverIp = process.env.MC_SERVER_IP;
-    // We use 2153 because that is your Playit tunnel port
-    const port = 2153; 
+    const serverIp = process.env.MC_SERVER_IP; // Ensure this is him-bolt.gl.joinmc.link
+    
+    try {
+        // We use the Java Edition endpoint specifically
+        const response = await fetch(`https://api.mcstatus.io/v2/status/java/${serverIp}`);
+        const data = await response.json();
 
-    // Create a promise to handle the socket connection
-    const checkServer = () => {
-        return new Promise((resolve) => {
-            const socket = new net.Socket();
-            
-            // Set a 3-second timeout so the site doesn't hang
-            socket.setTimeout(3000);
-
-            socket.on('connect', () => {
-                socket.destroy();
-                resolve({ online: true });
-            });
-
-            socket.on('timeout', () => {
-                socket.destroy();
-                resolve({ online: false, error: 'Timeout' });
-            });
-
-            socket.on('error', () => {
-                socket.destroy();
-                resolve({ online: false, error: 'Connection Refused' });
-            });
-
-            socket.connect(port, serverIp);
+        // Send only the necessary info back to your HTML
+        res.status(200).json({
+            online: data.online,
+            players: data.players ? data.players.online : 0,
+            max: data.players ? data.players.max : 20
         });
-    };
-
-    const status = await checkServer();
-
-    // Disable caching so you see the status change instantly
-    res.setHeader('Cache-Control', 'no-store, max-age=0');
-    res.status(200).json(status);
+    } catch (error) {
+        res.status(500).json({ online: false, error: "API unreachable" });
+    }
 }
