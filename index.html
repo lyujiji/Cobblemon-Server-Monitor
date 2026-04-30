@@ -1,14 +1,38 @@
-<script>
-    fetch('/api/status')
-        .then(res => res.json())
-        .then(data => {
-            const el = document.getElementById('server-status');
-            if (data.online) {
-                el.innerHTML = `Online (${data.players}/${data.max})`;
-                el.style.color = "#4caf50";
-            } else {
-                el.innerHTML = "Offline";
-                el.style.color = "#f44336";
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cobblemon Status</title>
+    <style>
+        body { background: #121212; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: #1e1e1e; padding: 30px; border-radius: 15px; text-align: center; border: 1px solid #333; }
+        #status { font-size: 24px; font-weight: bold; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div>SERVER STATUS</div>
+        <div id="status">Loading...</div>
+    </div>
+
+    <script>
+        async function getStatus() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                const el = document.getElementById('status');
+                
+                if (data.online) {
+                    el.innerText = "ONLINE (" + data.players + "/" + data.max + ")";
+                    el.style.color = "#4caf50";
+                } else {
+                    el.innerText = "OFFLINE";
+                    el.style.color = "#f44336";
+                }
+            } catch (err) {
+                document.getElementById('status').innerText = "API ERROR";
             }
-        });
-</script>
+        }
+        getStatus();
+    </script>
+</body>
+</html>
